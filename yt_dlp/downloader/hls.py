@@ -162,8 +162,10 @@ class HlsFD(FragmentFD):
         format_index = info_dict.get('format_index')
         extra_query = None
         extra_param_to_segment_url = info_dict.get('extra_param_to_segment_url')
+        self.to_screen("TOTO")
         if extra_param_to_segment_url:
             extra_query = urllib.parse.parse_qs(extra_param_to_segment_url)
+            self.to_screen("Extra URL params: %s" % extra_param_to_segment_url)
         i = 0
         media_sequence = 0
         decrypt_info = {'METHOD': 'NONE'}
@@ -243,9 +245,22 @@ class HlsFD(FragmentFD):
                         if external_aes_key:
                             decrypt_info['KEY'] = external_aes_key
                         else:
-                            decrypt_info['URI'] = urljoin(man_url, decrypt_info['URI'])
-                            if extra_query:
-                                decrypt_info['URI'] = update_url_query(decrypt_info['URI'], extra_query)
+                            new_url = urljoin(man_url, decrypt_info['URI'])
+                            new_url = update_url_query(new_url, extra_query)
+                            new_url = new_url.replace("siriusxm-priprodaod.akamaized.net/HLS", "player.siriusxm.ca/rest/streaming/HLS")
+                            print("new url: %s", new_url)
+
+                            u = urllib.parse.urlparse(new_url)
+                            query = urllib.parse.parse_qs(u.query, keep_blank_values=True)
+                            query.pop('token', None)
+                            u = u._replace(query=urllib.parse.urlencode(query, True))                            
+                            new_url = urllib.parse.urlunparse(u)
+							
+                            print("new url: %s", new_url)
+							
+                            decrypt_info['URI'] = new_url
+                            #if extra_query:
+                                #decrypt_info['URI'] = update_url_query(decrypt_info['URI'], extra_query)
                             if decrypt_url != decrypt_info['URI']:
                                 decrypt_info['KEY'] = None
 
