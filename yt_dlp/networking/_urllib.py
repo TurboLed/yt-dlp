@@ -92,11 +92,13 @@ class HTTPHandler(urllib.request.AbstractHTTPHandler):
         return conn_class
 
     def http_open(self, req):
+        print("open: %s" % req.get_full_url())
         conn_class = self._make_conn_class(http.client.HTTPConnection, req)
         return self.do_open(functools.partial(
             _create_http_connection, conn_class, self._source_address), req)
 
     def https_open(self, req):
+        print("open: %s" % req.get_full_url())
         conn_class = self._make_conn_class(http.client.HTTPSConnection, req)
         return self.do_open(
             functools.partial(
@@ -387,6 +389,11 @@ class UrllibRH(RequestHandler, InstanceStoreMixin):
             headers=dict(headers),
             method=request.method
         )
+
+        print("url", request.url)
+        print("data", str(request.data))
+        print("headers", headers)
+        print("method", request.method)
 
         opener = self._get_instance(
             proxies=request.proxies or self.proxies,

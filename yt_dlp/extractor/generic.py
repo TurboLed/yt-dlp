@@ -2223,11 +2223,14 @@ class GenericIE(InfoExtractor):
         self._downloader.write_debug(f'Identified {num} {name}{format_field(note, None, "; %s")}')
 
     def _extra_manifest_info(self, info, manifest_url):
+        self._downloader.to_screen("TEST: %s" % manifest_url)
+        self._downloader.to_screen("TEST: %s" % urllib.parse.urlparse(manifest_url).query)
         fragment_query = self._configuration_arg('fragment_query', [None], casesense=True)[0]
-        if fragment_query is not None:
-            info['extra_param_to_segment_url'] = (
-                urllib.parse.urlparse(fragment_query).query or fragment_query
-                or urllib.parse.urlparse(manifest_url).query or None)
+        # if fragment_query is not None:
+        info['extra_param_to_segment_url'] = urllib.parse.urlparse(manifest_url).query
+		#urllib.parse.urlparse(manifest_url).query
+            # urllib.parse.urlparse(fragment_query).query or fragment_query
+            # or urllib.parse.urlparse(manifest_url).query or None)
 
         hex_or_none = lambda x: x if re.fullmatch(r'(0x)?[\da-f]+', x, re.IGNORECASE) else None
         info['hls_aes'] = traverse_obj(self._configuration_arg('hls_key', casesense=True), {
